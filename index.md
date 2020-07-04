@@ -1,3 +1,9 @@
+## Greetings
+
+Welcome to my homepage. I will post the information of my current project here.
+
+
+
 ## Welcome to GitHub Pages
 
 You can use the [editor on GitHub](https://github.com/J1N9YU/J1N9YU.GitHub.io/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
