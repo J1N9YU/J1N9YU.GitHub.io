@@ -38,7 +38,6 @@ u,s,v=linalg.svd(hitVertex-center)
 
 ```
 
-## 
 
 上述代码中的```signal```变量就是我需要的数据输入，目前，它是$12\times 2$的矩阵，矩阵元即电压读数。
 
