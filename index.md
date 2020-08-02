@@ -1,47 +1,47 @@
-# 已经实现
+# 更新日志
 
-## 在一个TCanvas中画多视图。
+## 可视化
+测试了TEve绘制点、线的功能。尝试了使用模拟的数据，但是由于坐标系不一致，效果不好，这里只展示一个点和一条线。
 
-效果如下所示
+点和线没有在投影里显示出来，应该是我自己写的bug，最终是可以显示出来的。
 
-![avatar](pic\3.png)
+![avatar](pic\200802_1.png)
 
-## TGeo在网页上显示
+另外，我正在把右下角的投影改成顶视图（修改ROOT源代码）
 
-使用**JSROOT**包附带的模板网页**index.htm**可以实现在网页上显示几何体。
+网页显示方面还没进行尝试。
 
-![avatar](pic\1.png)
+## 数据格式
+重新写了数据处理（轨迹重建）的部分，现在流程更加简洁，只有几行。计算结果的数据类型为numpy矩阵，可以通过ROOT的python模块导入eve中。
+```python
+from numpy import *
+import ROOT
 
-值得一提的有以下几点
-- 虽然JSROOT称其支持从TGeoManger类画图，实际使用时发现只能显示单个塑闪。而使用TGeoVolume类则可正常画图。
-- 测试使用的是在网页中选取本地文件的方法，而在url中添加文件路径参数的方法需要单间apache服务器，尚未测试。
+#塑闪数量
+nPS = 12
+#每个塑闪的SiPM数量
+nPM = 2
 
+#SiPM信号（暂且随机生成）
+signal = random.random((nPS,nPM))
 
-# 问题
+#PMT位置（应当从几何读入）
+position = random.random((nPS,nPM,3))*100
 
-没有找到方法同时实现 **网页显示**和**多视图** 。我进行了以下尝试：
+#重建算法
+ratio = signal/sum(signal,1,keepdims =True)
+hitVertex = sum(position*expand_dims(ratio,2).repeat(3,2),1)
 
-## TCanvas + html
- 直接在本地用TCanvas画多视图并写入文件，使用网页读取该TCanvas。结果是网页只保留了了2×2的布局，相机角度和正交相机设置被丢弃了。
+#拟合。center（三维点）和v（的一个列向量）决定了一条直线
+center = average(hitVertex,0)
+u,s,v=linalg.svd(hitVertex-center)
 
-![avatar](pic\2.png)
+```
 
-## TGeo + html
-在本地把TGeo对象写入文件，使用网页读取，通过在url上添加参数，试图把网页的样式调成多视图。尝试后发现JSROOT提供的参数功能太弱，可能无法调出多视图的样式。
+## 
 
-此外，我注意到JSROOT可能有以下的局限性
-- JSROOT似乎没有提供正交相机，因此可能没法画出好看的多视图。
-- JSROOT的角度调整参数只提供了两个轴，可能无法精确的调整角度
+上述代码中的```signal```变量就是我需要的数据输入，目前，它是$12\times 2$的矩阵，矩阵元即电压读数。
 
-# 其它
-
-ROOT的eve模块提供了多视图的功能，效果比使用TCanvas更好，且eve提供了投影，轨迹显示功能。但是在实际使用时我发现eve投影功能不支持TGeo类型的几何体，正在尝试用TEveGeoShape作为中间类型把gdml导入Eve。下面是Eve模块的官方例子
-
-![avatar](pic\4.png)
-
-直接使用TGeo类型的效果，透视图正常，投影图不正常。
-
-![avatar](pic\5.png)
 
 
 
